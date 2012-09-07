@@ -1,0 +1,9 @@
+D:\andrew\Projects\FantasyStatistics\FantasyStatistics\bin\Debug\FantasyStatistics.exe
+D:\andrew\Projects\FantasyStatistics\FantasyStatistics\bin\Debug\FantasyStatistics.pdb
+D:\andrew\Projects\FantasyStatistics\FantasyStatistics\bin\Debug\HtmlAgilityPack.dll
+D:\andrew\Projects\FantasyStatistics\FantasyStatistics\bin\Debug\System.Data.SQLite.dll
+D:\andrew\Projects\FantasyStatistics\FantasyStatistics\bin\Debug\System.Data.SQLite.pdb
+D:\andrew\Projects\FantasyStatistics\FantasyStatistics\bin\Debug\System.Data.SQLite.xml
+D:\andrew\Projects\FantasyStatistics\FantasyStatistics\obj\x86\Debug\ResolveAssemblyReference.cache
+D:\andrew\Projects\FantasyStatistics\FantasyStatistics\obj\x86\Debug\FantasyStatistics.exe
+D:\andrew\Projects\FantasyStatistics\FantasyStatistics\obj\x86\Debug\FantasyStatistics.pdb

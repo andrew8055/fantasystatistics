@@ -1,0 +1,85 @@
+//CREATE TABLE "Users" ("Id" INTEGER PRIMARY KEY  NOT NULL  UNIQUE , "Name" VARCHAR, "Link" VARCHAR )
+//CREATE TABLE "Points" ("Id" INTEGER NOT NULL, "Tour" INTEGER NOT NULL, "Counts" INTEGER, FOREIGN KEY(Id) REFERENCES Users(Id))
+
+
+
+//String link = @"http://www.sports.ru/fantasy/football/tournament/ratings/leaders/50.html?p=";
+//List<Thread> threads = new List<Thread>();
+
+//int page = 278;
+
+//for (int i = 1, firstVal = 0, lastVal = 0; i <= page; ++i, ++firstVal)
+//{
+//    if (firstVal == 0 && lastVal == 0)
+//    {
+//        firstVal = i;
+//        if (i + 5 > page)
+//            lastVal = i;
+//        else
+//            lastVal = i + 5;
+//    }
+
+//    Thread thread = new Thread(new ParameterizedThreadStart(HtmlFile.DownloadManager));
+
+//    link = link + i.ToString();
+
+//    thread.Start(link);
+
+//    threads.Add(thread);
+
+//    link = link.Remove(75);
+
+//    if (firstVal == lastVal)
+//    {
+//        firstVal = -1; lastVal = 0;
+
+//        for (int j = 0; j < threads.Count; ++j)
+//        {
+//            if (threads[j].IsAlive)
+//            {
+//                Thread.Sleep(100);
+//                j = 0;
+//                continue;
+//            }
+//        }
+//        threads.Clear();
+//        Console.WriteLine(i);
+//    }
+//}
+
+
+
+//const string databaseName = @"FantasyFootball.db";
+//SQLiteConnection connection =
+//    new SQLiteConnection(string.Format("Data Source={0};", databaseName));
+//connection.Open();
+//SQLiteCommand command = new SQLiteCommand("SELECT * FROM 'Users';", connection);
+//SQLiteDataReader reader = command.ExecuteReader();
+//Console.Write("\u250C" + new string('\u2500', 5) + "\u252C" + new string('\u2500', 60) + "\u2510");
+//Console.WriteLine("\n\u2502" + "  id \u2502" + new string(' ', 30) + "value" + new string(' ', 25) + "\u2502");
+//Console.Write("\u251C" + new string('\u2500', 5) + "\u253C" + new string('\u2500', 60) + "\u2524\n");
+
+//foreach (DbDataRecord record in reader)
+//{
+//    string id = record["id"].ToString();
+//    id = id.PadLeft(5 - id.Length, ' ');
+//    string value = record["name"].ToString();
+//    string result = "\u2502" + id + " \u2502";
+//    value = value.PadLeft(60, ' ');
+//    result += value + "\u2502";
+//    Console.WriteLine(result);
+//}
+//Console.Write("\u2514" + new string('\u2500', 5) + "\u2534" + new string('\u2500', 60) + "\u2518");
+//connection.Close();
+
+
+
+//String link2 = @"http://www.sports.ru/fantasy/football/tournament/ratings/leaders/50.html?p=";
+            
+//for (int i = 1; i <= 5; ++i)
+//{
+//    link2 = link2 + i.ToString();
+//    HtmlFile.DownloadManager(new LinkTour(link2, tour));
+//    link2 = link2.Remove(75);
+//    Console.WriteLine(i);
+//}
