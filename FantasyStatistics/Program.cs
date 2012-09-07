@@ -25,29 +25,37 @@ namespace FantasyStatistics
 
     public class HtmlFile
     {
-        private static SQLiteConnection connection;
-        private static List<Stream> streams;
+        private SQLiteConnection connection;
+        //private static List<Stream> streams;
+        private ManualResetEvent doneEvent;
+        private String link;
+        private int tour;
+
+        public HtmlFile(String _link, int _tour, ManualResetEvent _doneEvent)
+        {
+            link = _link;
+            doneEvent = _doneEvent;
+            tour = _tour;
+        }
 
         public HtmlFile()
         {
             const string databaseName = @"FantasyFootballGerman.db";
             connection =
                 new SQLiteConnection(string.Format("Data Source={0};", databaseName));
-            streams = new List<Stream>();
+            //streams = new List<Stream>();
 
-            connection.Open();
+            
         }
 
-        private static void DownloadFile(Object _link)
+        public void DownloadFile(Object arg)
         {
-            String link = _link as String;
-
             WebRequest request = WebRequest.Create(link);
 
             WebResponse response = request.GetResponse();
             Stream stream = response.GetResponseStream();
 
-            streams.Add(stream);
+            //streams.Add(stream);
 
             HtmlDocument htmlDoc = new HtmlDocument();
             htmlDoc.Load(stream, Encoding.UTF8);
@@ -59,13 +67,15 @@ namespace FantasyStatistics
             Console.WriteLine("Work done for " + link);
         }
 
-        public static void ParseAndInsert(HtmlDocument doc)
+        public void ParseAndInsert(HtmlDocument doc)
         {
             HtmlNodeCollection elements = doc.DocumentNode.SelectNodes("//td[@class='name-td alLeft bordR']//a[@class='bold']");
 
             HtmlNodeCollection elementsPoints = doc.DocumentNode.SelectNodes("//td[@class='padR20']");
 
             int i = 1;
+            connection.Open();
+
             foreach (var node in elements)
             {
                 SQLiteCommand command4 = new SQLiteCommand("Select id, name from users where name='" + node.InnerText + "'", connection);
@@ -119,58 +129,62 @@ namespace FantasyStatistics
 
                 ++i;
             }
+
+            connection.Close();
         }
 
         public void DownloadManager(Object _link)
         {
-            LinkTour kvp = _link as LinkTour;
+            //---------------------------------------------
 
-            String link = kvp.link;
-            int tour = kvp.tour;
-            int page = kvp.countPage;
-            List<Thread> threads = new List<Thread>();
+            //LinkTour kvp = _link as LinkTour;
 
-            for (int i = 1, firstVal = 0, lastVal = 0; i <= page; ++i, ++firstVal)
-            {
-                if (firstVal == 0 && lastVal == 0)
-                {
-                    firstVal = i;
-                    if (i + 5 > page)
-                        lastVal = i;
-                    else
-                        lastVal = i + 5;
-                }
+            //String link = kvp.link;
+            //int tour = kvp.tour;
+            //int page = kvp.countPage;
+            //List<Thread> threads = new List<Thread>();
 
-                Thread thread = new Thread(new ParameterizedThreadStart(HtmlFile.DownloadFile));
+            //for (int i = 1, firstVal = 0, lastVal = 0; i <= page; ++i, ++firstVal)
+            //{
+            //    if (firstVal == 0 && lastVal == 0)
+            //    {
+            //        firstVal = i;
+            //        if (i + 5 > page)
+            //            lastVal = i;
+            //        else
+            //            lastVal = i + 5;
+            //    }
 
-                link = link + i.ToString();
+            //    Thread thread = new Thread(new ParameterizedThreadStart(HtmlFile.DownloadFile));
 
-                thread.Start(link);
+            //    link = link + i.ToString();
 
-                threads.Add(thread);
+            //    thread.Start(link);
 
-                link = link.Remove(75);
+            //    threads.Add(thread);
 
-                if (firstVal == lastVal)
-                {
-                    firstVal = -1; lastVal = 0;
+            //    link = link.Remove(75);
 
-                    for (int j = 0; j < threads.Count; ++j)
-                    {
-                        if (threads[j].IsAlive)
-                        {
-                            Thread.Sleep(100);
-                            j = 0;
-                            continue;
-                        }
-                    }
-                    foreach (var th in threads)
-                        th.Abort();
+            //    if (firstVal == lastVal)
+            //    {
+            //        firstVal = -1; lastVal = 0;
 
-                    threads.Clear();
-                    Console.WriteLine(i);
-                }
-            }
+            //        for (int j = 0; j < threads.Count; ++j)
+            //        {
+            //            if (threads[j].IsAlive)
+            //            {
+            //                Thread.Sleep(100);
+            //                j = 0;
+            //                continue;
+            //            }
+            //        }
+            //        foreach (var th in threads)
+            //            th.Abort();
+
+            //        threads.Clear();
+            //        Console.WriteLine(i);
+            //    }
+            //}
 
             //connection.Open();
 
@@ -183,22 +197,57 @@ namespace FantasyStatistics
             //    ParseAndInsert(doc);
             //}
 
-            connection.Close();
+            //connection.Close();
         }
     }
+
+    public class DownloadManager
+    {
+        private LinkTour linkTour;
+        
+        public DownloadManager(LinkTour _linkTour)
+        {
+            linkTour = new LinkTour(_linkTour.link, _linkTour.tour, _linkTour.countPage);
+        }
+
+        public void Start()
+        {
+            String link = linkTour.link;
+            int tour = linkTour.tour;
+            int page = linkTour.countPage;
+
+            var doneEvents = new ManualResetEvent[64];
+
+            for (int i = 1; i <= page; ++i)
+            {
+                doneEvents[i-1] = new ManualResetEvent(false);
+                link = link + i.ToString();
+                HtmlFile htmlFile = new HtmlFile(link, tour, doneEvents[i-1]);
+                ThreadPool.QueueUserWorkItem(htmlFile.DownloadFile);
+            }
+
+            WaitHandle.WaitAll(doneEvents);
+
+            Console.WriteLine("Work done");
+        }
+    }
+
     class Program
     {
         
         static void Main(string[] args)
         {
-            HtmlFile file = new HtmlFile();
+            //HtmlFile file = new HtmlFile();
 
             String link = @"http://www.sports.ru/fantasy/football/tournament/ratings/leaders/50.html?p=";
             int tour = 3, page = 130;
 
-            file.DownloadManager(new LinkTour(link, tour, page));
+            //file.DownloadManager(new LinkTour(link, tour, page));
 
-            Console.WriteLine("Work done");
+            //---------------------------------
+
+            DownloadManager dw = new DownloadManager(new LinkTour(link, tour, page));
+            dw.Start();
 
             Console.ReadLine();
         }
