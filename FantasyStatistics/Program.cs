@@ -27,15 +27,32 @@ namespace FantasyStatistics
     {
         private SQLiteConnection connection;
         //private static List<Stream> streams;
-        private ManualResetEvent doneEvent;
-        private String link;
+        private String link, fileName;
         private int tour;
 
-        public HtmlFile(String _link, int _tour, ManualResetEvent _doneEvent)
+        public HtmlFile(String _link, int _tour, String _fileName)
         {
             link = _link;
-            doneEvent = _doneEvent;
             tour = _tour;
+            fileName = _fileName;
+
+            const string databaseName = @"FantasyFootballGerman.db";
+            connection =
+                new SQLiteConnection(string.Format("Data Source={0};", databaseName));
+            
+            connection.Open();
+        }
+
+        public HtmlFile(int _tour, String _fileName)
+        {
+            tour = _tour;
+            fileName = _fileName;
+
+            const string databaseName = @"FantasyFootballGerman.db";
+            connection =
+                new SQLiteConnection(string.Format("Data Source={0};", databaseName));
+
+            connection.Open();
         }
 
         public HtmlFile()
@@ -48,52 +65,90 @@ namespace FantasyStatistics
             
         }
 
-        public void DownloadFile(Object arg)
+        public void DownloadFile()
         {
             WebRequest request = WebRequest.Create(link);
 
             WebResponse response = request.GetResponse();
             Stream stream = response.GetResponseStream();
-
             //streams.Add(stream);
 
-            HtmlDocument htmlDoc = new HtmlDocument();
-            htmlDoc.Load(stream, Encoding.UTF8);
+            Directory.CreateDirectory(@"tmp");
+            
+            using (FileStream fileStream = File.Create(@"tmp\" + fileName))
+            {
+                byte[] inStream = new byte[8 * 1024];
+                int len;
 
-            ParseAndInsert(htmlDoc);
+                while ((len = stream.Read(inStream, 0, inStream.Length)) > 0)
+                {
+                    fileStream.Write(inStream, 0, len);
+                }
+            }
 
             response.Close();
 
-            Console.WriteLine("Work done for " + link);
+
+
+            //HtmlDocument htmlDoc = new HtmlDocument();
+
+            //htmlDoc.Load(stream, Encoding.UTF8);
+
+            //ParseAndInsert(htmlDoc);
+
+            //response.Close();
+            ////doneEvent.Set();
+
+            //Console.WriteLine("Work done for " + link);
         }
 
-        public void ParseAndInsert(HtmlDocument doc)
+        public int ParseAndInsert(HtmlDocument doc)
         {
-            HtmlNodeCollection elements = doc.DocumentNode.SelectNodes("//td[@class='name-td alLeft bordR']//a[@class='bold']");
+            HtmlNodeCollection elements, elementsPoints;
 
-            HtmlNodeCollection elementsPoints = doc.DocumentNode.SelectNodes("//td[@class='padR20']");
+            elements = doc.DocumentNode.SelectNodes("//td[@class='name-td alLeft bordR']//a[@class='bold']");
+
+            elementsPoints = doc.DocumentNode.SelectNodes("//td[@class='padR20']");
 
             int i = 1;
-            connection.Open();
+            int schetchik = 0;
 
             foreach (var node in elements)
             {
-                SQLiteCommand command4 = new SQLiteCommand("Select id, name from users where name='" + node.InnerText + "'", connection);
-                SQLiteDataReader sqlReader2 = command4.ExecuteReader();
+                SQLiteCommand command4;
+                SQLiteDataReader sqlReader2;
+
+                //lock (connection)
+                //{
+                    command4 = new SQLiteCommand("Select id, name from users where name='" + node.InnerText + "'", connection);
+                    sqlReader2 = command4.ExecuteReader();
+                //}
                 //Console.WriteLine(sqlReader2[0].ToString() + "" + sqlReader2[1].ToString() + " " + node.InnerText);
                 //Console.ReadLine();
 
                 if (!sqlReader2.HasRows)
                 {
-                    lock (connection)
-                    {
-                        SQLiteCommand command = new SQLiteCommand("INSERT INTO 'Users' ('ID','Name', 'Link') VALUES (NULL, '" + node.InnerText + "', '" + node.Attributes["href"].Value + "');", connection);
-                        command.ExecuteNonQuery();
-                    }
+                    //lock (connection)
+                    //{
+
+                    SQLiteCommand command = new SQLiteCommand("INSERT INTO 'Users' ('ID','Name', 'Link') VALUES (NULL, '" + node.InnerText + "', '" + node.Attributes["href"].Value + "');", connection);
+                    command.ExecuteNonQuery();
+                    //}
+                }
+                else 
+                {
+                    //Console.WriteLine("Name: " + node.InnerText + " is exists");
+                    ++schetchik;
                 }
 
-                SQLiteCommand command3 = new SQLiteCommand("Select id from users where name='" + node.InnerText + "'", connection);
-                SQLiteDataReader sqlReader = command3.ExecuteReader();
+                SQLiteCommand command3;
+                SQLiteDataReader sqlReader;
+
+                //lock (connection)
+                //{
+                    command3 = new SQLiteCommand("Select id from users where name='" + node.InnerText + "'", connection);
+                    sqlReader = command3.ExecuteReader();
+                //}
 
                 int id = 0;
                 if (sqlReader.HasRows)
@@ -110,19 +165,25 @@ namespace FantasyStatistics
                     connection.Close();
                     Console.WriteLine("Error to enter line into Points");
                     Console.ReadLine();
-                    return;
+                    return 0;
                 }
 
-                SQLiteCommand command5 = new SQLiteCommand("Select counts from points where id=" + id + " and tour=3", connection);
-                SQLiteDataReader sqlReader3 = command5.ExecuteReader();
+                SQLiteCommand command5;
+                SQLiteDataReader sqlReader3;
+
+                //lock (connection)
+                //{
+                    command5 = new SQLiteCommand("Select counts from points where id=" + id + " and tour=3", connection);
+                    sqlReader3 = command5.ExecuteReader();
+                //}
 
                 if (!sqlReader3.HasRows)
                 {
-                    lock (connection)
-                    {
+                    //lock (connection)
+                    //{
                         SQLiteCommand command2 = new SQLiteCommand("INSERT INTO 'Points' ('ID','Tour', 'Counts') VALUES (" + id + ", 3, " + elementsPoints[i].InnerText + ");", connection);
                         command2.ExecuteNonQuery();
-                    }
+                    //}
                 }
                 else
                     Console.WriteLine("Line in table: Points is exists. Id="+id);
@@ -131,73 +192,8 @@ namespace FantasyStatistics
             }
 
             connection.Close();
-        }
 
-        public void DownloadManager(Object _link)
-        {
-            //---------------------------------------------
-
-            //LinkTour kvp = _link as LinkTour;
-
-            //String link = kvp.link;
-            //int tour = kvp.tour;
-            //int page = kvp.countPage;
-            //List<Thread> threads = new List<Thread>();
-
-            //for (int i = 1, firstVal = 0, lastVal = 0; i <= page; ++i, ++firstVal)
-            //{
-            //    if (firstVal == 0 && lastVal == 0)
-            //    {
-            //        firstVal = i;
-            //        if (i + 5 > page)
-            //            lastVal = i;
-            //        else
-            //            lastVal = i + 5;
-            //    }
-
-            //    Thread thread = new Thread(new ParameterizedThreadStart(HtmlFile.DownloadFile));
-
-            //    link = link + i.ToString();
-
-            //    thread.Start(link);
-
-            //    threads.Add(thread);
-
-            //    link = link.Remove(75);
-
-            //    if (firstVal == lastVal)
-            //    {
-            //        firstVal = -1; lastVal = 0;
-
-            //        for (int j = 0; j < threads.Count; ++j)
-            //        {
-            //            if (threads[j].IsAlive)
-            //            {
-            //                Thread.Sleep(100);
-            //                j = 0;
-            //                continue;
-            //            }
-            //        }
-            //        foreach (var th in threads)
-            //            th.Abort();
-
-            //        threads.Clear();
-            //        Console.WriteLine(i);
-            //    }
-            //}
-
-            //connection.Open();
-
-            //HtmlDocument doc = new HtmlDocument();
-
-            //foreach (var stream in streams)
-            //{
-            //    doc.Load(stream, Encoding.UTF8);
-
-            //    ParseAndInsert(doc);
-            //}
-
-            //connection.Close();
+            return schetchik;
         }
     }
 
@@ -216,17 +212,89 @@ namespace FantasyStatistics
             int tour = linkTour.tour;
             int page = linkTour.countPage;
 
-            var doneEvents = new ManualResetEvent[64];
+            List<Thread> threads = new List<Thread>();
+            //var doneEvents = new ManualResetEvent[5];
+
+            for (int i = 1, counter = 0; i <= page; ++i, ++counter)
+            {
+                if (counter == 30)
+                {
+                    for (int j = 0; j < threads.Count; ++j)
+                    {
+                        if (threads[j].IsAlive)
+                        {
+                            Thread.Sleep(100);
+                            j = 0;
+                            continue;
+                        }
+                    }
+                    foreach (var th in threads)
+                        th.Abort();
+                    threads.Clear();
+                    //WaitHandle.WaitAll(doneEvents);
+                    counter = 0;
+                }
+                
+                //doneEvents[counter] = new ManualResetEvent(false);
+                link = link + i.ToString();
+                HtmlFile htmlFile = new HtmlFile(link, tour, i.ToString());
+                Thread thread = new Thread(htmlFile.DownloadFile);
+                thread.Start();
+                threads.Add(thread);
+                link = link.Remove(75);
+                
+                if (i == page)
+                {
+                    for (int j = 0; j < threads.Count; ++j)
+                    {
+                        if (threads[j].IsAlive)
+                        {
+                            Thread.Sleep(100);
+                            j = 0;
+                            continue;
+                        }
+                    }
+                    foreach (var th in threads)
+                        th.Abort();
+
+                    threads.Clear();
+                    //for (int j = counter + 1; j < 5; ++j)
+                    //    doneEvents[j] = new ManualResetEvent(true);
+
+                    //WaitHandle.WaitAll(doneEvents);
+                }
+            }
+
+            int usersExists = 0;
 
             for (int i = 1; i <= page; ++i)
             {
-                doneEvents[i-1] = new ManualResetEvent(false);
+                HtmlDocument doc = new HtmlDocument();
                 link = link + i.ToString();
-                HtmlFile htmlFile = new HtmlFile(link, tour, doneEvents[i-1]);
-                ThreadPool.QueueUserWorkItem(htmlFile.DownloadFile);
+                String path = @"tmp\" + i.ToString();
+                
+                doc.Load(path, Encoding.UTF8);
+
+                HtmlFile html = new HtmlFile(tour, i.ToString());
+
+                usersExists += html.ParseAndInsert(doc);
+
+                link = link.Remove(75);
             }
 
-            WaitHandle.WaitAll(doneEvents);
+            Console.WriteLine(usersExists + "user exists");
+
+            for (int i = 1; i <= page; ++i)
+            {
+                link = link + i.ToString();
+                String path = @"tmp\" + i.ToString();
+
+                File.Delete(path);
+
+                link.Remove(75);
+            }
+
+            Directory.Delete(@"tmp");
 
             Console.WriteLine("Work done");
         }

@@ -3,6 +3,70 @@
 
 
 
+//LinkTour kvp = _link as LinkTour;
+
+//String link = kvp.link;
+//int tour = kvp.tour;
+//int page = kvp.countPage;
+//List<Thread> threads = new List<Thread>();
+
+//for (int i = 1, firstVal = 0, lastVal = 0; i <= page; ++i, ++firstVal)
+//{
+//    if (firstVal == 0 && lastVal == 0)
+//    {
+//        firstVal = i;
+//        if (i + 5 > page)
+//            lastVal = i;
+//        else
+//            lastVal = i + 5;
+//    }
+
+//    Thread thread = new Thread(new ParameterizedThreadStart(HtmlFile.DownloadFile));
+
+//    link = link + i.ToString();
+
+//    thread.Start(link);
+
+//    threads.Add(thread);
+
+//    link = link.Remove(75);
+
+//    if (firstVal == lastVal)
+//    {
+//        firstVal = -1; lastVal = 0;
+
+//        for (int j = 0; j < threads.Count; ++j)
+//        {
+//            if (threads[j].IsAlive)
+//            {
+//                Thread.Sleep(100);
+//                j = 0;
+//                continue;
+//            }
+//        }
+//        foreach (var th in threads)
+//            th.Abort();
+
+//        threads.Clear();
+//        Console.WriteLine(i);
+//    }
+//}
+
+//connection.Open();
+
+//HtmlDocument doc = new HtmlDocument();
+
+//foreach (var stream in streams)
+//{
+//    doc.Load(stream, Encoding.UTF8);
+
+//    ParseAndInsert(doc);
+//}
+
+//connection.Close();
+
+
+
 //String link = @"http://www.sports.ru/fantasy/football/tournament/ratings/leaders/50.html?p=";
 //List<Thread> threads = new List<Thread>();
 
