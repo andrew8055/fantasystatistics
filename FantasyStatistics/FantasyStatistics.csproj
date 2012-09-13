@@ -37,6 +37,10 @@
     <Reference Include="HtmlAgilityPack">
       <HintPath>bin\HtmlAgilityPack.dll</HintPath>
     </Reference>
+    <Reference Include="INIFileParser, Version=1.7.1.0, Culture=neutral, PublicKeyToken=79af7b307b65cf3c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\INIFileParser.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.SQLite">
@@ -52,7 +56,7 @@
     <Compile Include="DownloadManager.cs" />
     <Compile Include="HtmlFile.cs" />
     <Compile Include="LinkTour.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
