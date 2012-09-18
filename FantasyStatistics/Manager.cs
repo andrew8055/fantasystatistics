@@ -6,20 +6,19 @@ using System.IO;
 using System.Text;
 using IniParser;
 using System.Data.SQLite;
-using System.Data.Common;
 
 namespace FantasyStatistics
 {
-    public class DownloadManager
+    public class Manager
     {
-        private LinkTour linkTour;
+        private Configuration config;
 
-        private DownloadManager(LinkTour _linkTour)
+        private Manager(Configuration _config)
         {
-            linkTour = new LinkTour(_linkTour.link, _linkTour.tour, _linkTour.countPage, _linkTour.dbPath);
+            config = new Configuration(_config.link, _config.tour, _config.countPage, _config.dbPath);
         }
 
-        public static DownloadManager ReadIniFile(String _path)
+        public static Manager ReadIniFile(String _path)
         {
             String link = "", dbPath = "";
             int tour = 0, countPage  = 0;
@@ -49,16 +48,69 @@ namespace FantasyStatistics
                 }
             }
 
-            return new DownloadManager(new LinkTour(link, tour, countPage, dbPath));
+            return new Manager(new Configuration(link, tour, countPage, dbPath));
+        }
+
+        public void Leaders()
+        {
+            using (SQLiteConnection connection = new SQLiteConnection(string.Format("Data Source={0};", config.dbPath)))
+            {
+                connection.Open();
+
+                using (SQLiteCommand sqlSel = new SQLiteCommand("SELECT us.name, p.counts, us.link FROM users us, points p WHERE us.id=p.id order by p.counts desc limit 50", connection))
+                {
+                    SQLiteDataReader reader = sqlSel.ExecuteReader();
+
+                    Console.WriteLine("Leaders fantasy tournament");
+                    Console.WriteLine("Name |   Points  |   Link\n");
+
+                    while (reader.Read())
+                    {
+                        Console.WriteLine("{0}  |  {1}  |  {2}", reader[0].ToString(), reader[1].ToString(), reader[2].ToString());
+                    }
+                }
+
+                connection.Close();
+            }
+        }
+
+        public void SelectTopPlayersFor3Tours()
+        {
+            using (SQLiteConnection connection = new SQLiteConnection(string.Format("Data Source={0};", config.dbPath)))
+            {
+                connection.Open();
+
+                using (SQLiteCommand sqlSel = new SQLiteCommand("SELECT max(tour) FROM points", connection))
+                {
+                    SQLiteDataReader reader = sqlSel.ExecuteReader();
+
+                    if (!reader.HasRows)
+                    {
+                        Console.WriteLine("База данных не содержит ни одного тура");
+                        return;
+                    }
+
+                    int maxTour = Convert.ToInt32(reader[0]);
+
+                    for (int i = maxTour, counter = 0; i > 1 && counter < 3; --i, ++counter)
+                    {
+                        Console.WriteLine("Top fantasy-players for {0} tours\n", maxTour - i + 1);
+                        SelectTopPlayers(maxTour, i - 1);
+                        Console.Write("\n");
+                    }
+                }
+
+                connection.Close();
+            }
         }
 
         public void SelectTopPlayers(int _startIndex, int _endIndex)
         {
-            using (SQLiteConnection connection = new SQLiteConnection(string.Format("Data Source={0};", linkTour.dbPath)))
+            using (SQLiteConnection connection = new SQLiteConnection(string.Format("Data Source={0};", config.dbPath)))
             {
                 connection.Open();
 
-                using (SQLiteCommand sqlSel = new SQLiteCommand("select us.name, p2.counts-p1.counts, us.link from points p1, points p2, users us where p1.id=p2.id and p1.tour=@endIndex and p2.tour=@startIndex and p1.id=us.id order by p2.counts-p1.counts desc limit 40", connection))
+                using (SQLiteCommand sqlSel = new SQLiteCommand("SELECT us.name, p2.counts-p1.counts, us.link FROM points p1, points p2, users us WHERE p1.id=p2.id and p1.tour=@endIndex and p2.tour=@startIndex and p1.id=us.id order by p2.counts-p1.counts desc limit 40", connection))
                 {
                     sqlSel.Parameters.Add(new SQLiteParameter("@startIndex", _startIndex));
                     sqlSel.Parameters.Add(new SQLiteParameter("@endIndex", _endIndex));
@@ -75,11 +127,11 @@ namespace FantasyStatistics
             }
         }
 
-        public void Start()
+        public void StartUpdateDB()
         {
-            String link = linkTour.link, dbPath = linkTour.dbPath;
-            int tour = linkTour.tour;
-            int page = linkTour.countPage;
+            String link = config.link, dbPath = config.dbPath;
+            int tour = config.tour;
+            int page = config.countPage;
 
             List<Thread> threads = new List<Thread>();
 
@@ -96,17 +148,22 @@ namespace FantasyStatistics
                             continue;
                         }
                     }
+
                     foreach (var th in threads)
                         th.Abort();
+
                     threads.Clear();
                     counter = 0;
                 }
 
                 link = link + i.ToString();
+
                 HtmlFile htmlFile = new HtmlFile(link, tour, i.ToString());
                 Thread thread = new Thread(htmlFile.DownloadFile);
+
                 thread.Start();
                 threads.Add(thread);
+
                 link = link.Remove(75);
 
                 if (i == page)

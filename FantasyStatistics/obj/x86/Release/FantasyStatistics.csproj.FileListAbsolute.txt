@@ -7,3 +7,4 @@ D:\andrew\Projects\FantasyStatistics\FantasyStatistics\bin\Release\System.Data.S
 D:\andrew\Projects\FantasyStatistics\FantasyStatistics\obj\x86\Release\ResolveAssemblyReference.cache
 D:\andrew\Projects\FantasyStatistics\FantasyStatistics\obj\x86\Release\FantasyStatistics.exe
 D:\andrew\Projects\FantasyStatistics\FantasyStatistics\obj\x86\Release\FantasyStatistics.pdb
+D:\andrew\Projects\FantasyStatistics\FantasyStatistics\bin\Release\INIFileParser.dll

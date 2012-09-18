@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Net;
 using HtmlAgilityPack;
 using System.Data.SQLite;
-using System.Data.Common;
 using System.IO;
-using System.Text;
 
 namespace FantasyStatistics
 {

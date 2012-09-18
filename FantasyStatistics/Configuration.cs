@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace FantasyStatistics
 {
-    public class LinkTour
+    public class Configuration
     {
         public String link, dbPath;
         public int tour, countPage;
 
-        public LinkTour(String _link, int _tour, int _countPage, String _dbPath)
+        public Configuration(String _link, int _tour, int _countPage, String _dbPath)
         {
             link = _link;
             tour = _tour;

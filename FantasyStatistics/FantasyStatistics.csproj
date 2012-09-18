@@ -53,9 +53,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DownloadManager.cs" />
+    <Compile Include="Manager.cs" />
     <Compile Include="HtmlFile.cs" />
-    <Compile Include="LinkTour.cs" />
+    <Compile Include="Configuration.cs" />
     <Compile Include="Main.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
