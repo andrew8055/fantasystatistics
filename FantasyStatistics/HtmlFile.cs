@@ -100,13 +100,27 @@ namespace FantasyStatistics
                         break;
                     }
 
-                    using (var sqlIns = new SQLiteCommand("INSERT INTO Points(id, tour, counts) SELECT @id insId, @tour insTour, @counts insCounts FROM Points WHERE NOT EXISTS(SELECT 1 FROM Points WHERE id=insId and tour=insTour);", connection))
+                    using (var sqlSel2 = new SQLiteCommand("SELECT id, tour, counts FROM points where id=@id and tour=@tour", connection))
                     {
-                        sqlIns.Parameters.Add(new SQLiteParameter("id", id));
-                        sqlIns.Parameters.Add(new SQLiteParameter("tour", tour));
-                        sqlIns.Parameters.Add(new SQLiteParameter("counts", Convert.ToInt32(elementsPoints[i].InnerText)));
+                        sqlSel2.Parameters.Add(new SQLiteParameter("@id", id));
+                        sqlSel2.Parameters.Add(new SQLiteParameter("@tour", tour));
 
-                        sqlIns.ExecuteNonQuery();
+                        SQLiteDataReader sqlReader2 = sqlSel2.ExecuteReader();
+
+                        while (!sqlReader2.Read())
+                        {
+
+                            using (var sqlIns = new SQLiteCommand("INSERT INTO points(id, tour, counts) VALUES(@id, @tour, @counts)", connection))
+                            {
+                                sqlIns.Parameters.Add(new SQLiteParameter("@id", id));
+                                sqlIns.Parameters.Add(new SQLiteParameter("@tour", tour));
+                                sqlIns.Parameters.Add(new SQLiteParameter("@counts", Convert.ToInt32(elementsPoints[i].InnerText)));
+
+                                sqlIns.ExecuteNonQuery();
+                            }
+
+                            break;
+                        }
                     }
                 }
                 

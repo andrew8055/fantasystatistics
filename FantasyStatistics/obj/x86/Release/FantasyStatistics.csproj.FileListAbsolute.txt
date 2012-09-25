@@ -1,10 +1,11 @@
+D:\andrew\Projects\FantasyStatistics\FantasyStatistics\obj\x86\Release\ResolveAssemblyReference.cache
+D:\andrew\Projects\FantasyStatistics\FantasyStatistics\bin\Release\FantasyStatistics.exe.config
 D:\andrew\Projects\FantasyStatistics\FantasyStatistics\bin\Release\FantasyStatistics.exe
 D:\andrew\Projects\FantasyStatistics\FantasyStatistics\bin\Release\FantasyStatistics.pdb
 D:\andrew\Projects\FantasyStatistics\FantasyStatistics\bin\Release\HtmlAgilityPack.dll
+D:\andrew\Projects\FantasyStatistics\FantasyStatistics\bin\Release\INIFileParser.dll
 D:\andrew\Projects\FantasyStatistics\FantasyStatistics\bin\Release\System.Data.SQLite.dll
 D:\andrew\Projects\FantasyStatistics\FantasyStatistics\bin\Release\System.Data.SQLite.pdb
 D:\andrew\Projects\FantasyStatistics\FantasyStatistics\bin\Release\System.Data.SQLite.xml
-D:\andrew\Projects\FantasyStatistics\FantasyStatistics\obj\x86\Release\ResolveAssemblyReference.cache
 D:\andrew\Projects\FantasyStatistics\FantasyStatistics\obj\x86\Release\FantasyStatistics.exe
 D:\andrew\Projects\FantasyStatistics\FantasyStatistics\obj\x86\Release\FantasyStatistics.pdb
-D:\andrew\Projects\FantasyStatistics\FantasyStatistics\bin\Release\INIFileParser.dll
