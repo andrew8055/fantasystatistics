@@ -132,25 +132,16 @@ namespace FantasyStatistics
             String link = config.link, dbPath = config.dbPath;
             int tour = config.tour;
             int page = config.countPage;
+            int numberThreads = 10;
 
             List<Thread> threads = new List<Thread>();
 
             for (int i = 1, counter = 0; i <= page; ++i, ++counter)
             {
-                if (counter == 30)
+                if (counter == numberThreads)
                 {
-                    for (int j = 0; j < threads.Count; ++j)
-                    {
-                        if (threads[j].IsAlive)
-                        {
-                            Thread.Sleep(100);
-                            j = 0;
-                            continue;
-                        }
-                    }
-
                     foreach (var th in threads)
-                        th.Abort();
+                        th.Join();
 
                     threads.Clear();
                     counter = 0;
@@ -162,23 +153,17 @@ namespace FantasyStatistics
                 Thread thread = new Thread(htmlFile.DownloadFile);
 
                 thread.Start();
+
+                while (!thread.IsAlive);
+
                 threads.Add(thread);
 
                 link = link.Remove(75);
 
                 if (i == page)
                 {
-                    for (int j = 0; j < threads.Count; ++j)
-                    {
-                        if (threads[j].IsAlive)
-                        {
-                            Thread.Sleep(100);
-                            j = 0;
-                            continue;
-                        }
-                    }
                     foreach (var th in threads)
-                        th.Abort();
+                        th.Join();
 
                     threads.Clear();
                 }

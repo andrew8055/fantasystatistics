@@ -5,6 +5,8 @@
 
 //select us.name, p2.counts-p1.counts, us.link from points p1, points p2, users us where p1.id=p2.id and p1.tour=2 and p2.tour=3 and p1.id=us.id order by p2.counts-p1.counts desc
 
+//SELECT max(p1.counts)-p2.counts FROM points p1, points p2
+WHERE p1.tour=5 and p2.tour=p1.tour and p2.id=8654
 
 
 //LinkTour kvp = _link as LinkTour;
