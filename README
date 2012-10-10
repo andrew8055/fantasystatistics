@@ -1,4 +1,4 @@
-Вывод статистики игроков fantasy-турнира либо обновление базы данных.
+Статистика fantasy игроков на sports.ru. Для сбора данных используется Html Agility Pack. В качестве базы данных - SQLite.
 
 FantasyStatistics [-parameter]
 
